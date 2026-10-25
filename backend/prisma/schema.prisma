@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  DRIVER
+  ADMIN
+}
+
+enum RideStatus {
+  REQUESTED
+  ACCEPTED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+
+  driverProfile   Driver?
+  ridesAsCustomer Ride[] @relation("CustomerRides")
+}
+
+model Driver {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String   @unique @db.ObjectId
+  licenseNumber      String
+  verificationStatus String   @default("PENDING")
+  user               User     @relation(fields: [userId], references: [id])
+
+  trucks Truck[]
+  rides  Ride[] @relation("DriverRides")
+}
+
+model Truck {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  driverId    String @db.ObjectId
+  size        String
+  plateNumber String @unique
+  driver      Driver @relation(fields: [driverId], references: [id])
+
+  rides Ride[]
+}
+
+model Ride {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  customerId      String     @db.ObjectId
+  driverId        String?    @db.ObjectId
+  truckId         String?    @db.ObjectId
+  pickupLocation  String
+  dropoffLocation String
+  distanceKm      Float
+  price           Float
+  status          RideStatus @default(REQUESTED)
+  createdAt       DateTime   @default(now())
+
+  customer User    @relation("CustomerRides", fields: [customerId], references: [id])
+  driver   Driver? @relation("DriverRides", fields: [driverId], references: [id])
+  truck    Truck?  @relation(fields: [truckId], references: [id])
+  payment  Payment?
+}
+
+model Payment {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  rideId        String        @unique @db.ObjectId
+  amount        Float
+  method        String
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+
+  ride Ride @relation(fields: [rideId], references: [id])
+}
