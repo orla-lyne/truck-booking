@@ -28,7 +28,14 @@ export class RideService {
         price,
         status: 'REQUESTED',
       },
-      include: { truck: true, driver: { include: { user: true } } },
+     include: {
+  truck: true,
+  driver: {
+    include: {
+      user: { select: { id: true, name: true, email: true, phone: true, role: true } },
+    },
+  },
+},
     });
   }
 
@@ -36,7 +43,14 @@ export class RideService {
     if (role === 'CUSTOMER') {
       return prisma.ride.findMany({
         where: { customerId: userId },
-        include: { driver: { include: { user: true } }, truck: true },
+        include: {
+  driver: {
+    include: {
+      user: { select: { id: true, name: true, email: true, phone: true, role: true } },
+    },
+  },
+  truck: true,
+},
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -44,7 +58,10 @@ export class RideService {
     if (!driver) throw new Error('Driver profile not found');
     return prisma.ride.findMany({
       where: { driverId: driver.id },
-      include: { customer: true, truck: true },
+     include: {
+  customer: { select: { id: true, name: true, email: true, phone: true, role: true } },
+  truck: true,
+},
       orderBy: { createdAt: 'desc' },
     });
   }
