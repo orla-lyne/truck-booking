@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import driverRoutes from './routes/driver.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -16,10 +17,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Truck Booking API is running' });
 });
 
-// ─── Routes ───
+// Routes 
 app.use('/api/auth', authRoutes);
+app.use('/api/drivers', driverRoutes);
 
-// ─── Error handler (must be last) ───
+// Error handler 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
