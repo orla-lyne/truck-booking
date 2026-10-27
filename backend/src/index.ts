@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes';
+import driverRoutes from './routes/driver.routes';
+import rideRoutes from './routes/ride.routes';
+import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
 
@@ -13,6 +17,14 @@ app.use(express.json());
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Truck Booking API is running' });
 });
+
+//Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/drivers', driverRoutes);
+app.use('/api/rides', rideRoutes);
+
+//Error handler 
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
