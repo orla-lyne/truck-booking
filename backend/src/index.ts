@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -15,7 +16,10 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Truck Booking API is running' });
 });
 
-// Error handler — must be the LAST middleware
+// ─── Routes ───
+app.use('/api/auth', authRoutes);
+
+// ─── Error handler (must be last) ───
 app.use(errorHandler);
 
 app.listen(PORT, () => {
